@@ -185,3 +185,60 @@ const revealObserver = new IntersectionObserver(
 revealElements.forEach((element) => {
     revealObserver.observe(element);
 });
+
+/* =========================
+   RESET TOUCH LINK STATES
+========================= */
+
+const isTouchDevice = window.matchMedia(
+    "(hover: none), (pointer: coarse)"
+).matches;
+
+function resetTouchStates() {
+    if (!isTouchDevice) {
+        return;
+    }
+
+    /* Remove focus from the previously pressed link */
+
+    if (
+        document.activeElement &&
+        typeof document.activeElement.blur === "function"
+    ) {
+        document.activeElement.blur();
+    }
+
+    /* Remove navigation active states on tablet and mobile */
+
+    document
+        .querySelectorAll(".nav-links a.active")
+        .forEach((link) => {
+            link.classList.remove("active");
+        });
+}
+
+/* Runs when returning from TikTok, Instagram or another app */
+
+window.addEventListener("pageshow", resetTouchStates);
+
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+        resetTouchStates();
+    }
+});
+
+window.addEventListener("focus", resetTouchStates);
+
+/* Remove focus immediately after tapping a link */
+
+document
+    .querySelectorAll("a")
+    .forEach((link) => {
+        link.addEventListener("click", () => {
+            if (isTouchDevice) {
+                setTimeout(() => {
+                    link.blur();
+                }, 100);
+            }
+        });
+    });
